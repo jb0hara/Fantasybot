@@ -1,0 +1,11 @@
+# scorer.py
+
+def calculate_fantasy_points(stats, scoring):
+    score = 0
+    score += scoring.get("pts", 0) * stats.get("pts", 0)
+    score += scoring.get("reb", 0) * stats.get("reb", 0)
+    score += scoring.get("ast", 0) * stats.get("ast", 0)
+    score += scoring.get("stl", 0) * stats.get("stl", 0)
+    score += scoring.get("blk", 0) * stats.get("blk", 0)
+    score += scoring.get("turnover", 0) * stats.get("turnover", 0)
+    return round(score, 2)
