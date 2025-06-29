@@ -1,0 +1,37 @@
+# chat_engine.py
+
+from nba_data import get_player_season_averages, get_player_name
+from scorer import calculate_fantasy_points
+
+def handle_query(query, scoring):
+    query = query.lower()
+    if not scoring:
+        return "Please configure your league's scoring system in the sidebar first."
+
+    players = get_player_season_averages()
+    results = []
+
+    for p in players:
+        name = get_player_name(p["player_id"])
+        score = calculate_fantasy_points(p, scoring)
+        results.append((name, score))
+
+    results.sort(key=lambda x: x[1], reverse=True)
+
+    if "top" in query or "best" in query:
+        top_n = 5
+        top_players = results[:top_n]
+        reply = f"🏀 Top {top_n} Players by Your Scoring:\n\n"
+        for i, (name, score) in enumerate(top_players, 1):
+            reply += f"{i}. {name} – {score} FPPG\n"
+        return reply
+
+    if "compare" in query:
+        names = [r[0].lower() for r in results]
+        found = [r for r in results if any(n in query for n in r[0].lower().split())]
+        if len(found) >= 2:
+            p1, p2 = found[:2]
+            return f"{p1[0]}: {p1[1]} FPPG\n{p2[0]}: {p2[1]} FPPG"
+        return "Please name two players to compare."
+
+    return "Try asking: 'Who are the top players?', or 'Compare Jokic and Embiid'"
