@@ -1,0 +1,23 @@
+# memory_store.py
+
+import json
+import os
+
+STORE_PATH = "league_profiles.json"
+
+def get_scoring(league_name: str):
+    if not os.path.exists(STORE_PATH):
+        return {}
+    with open(STORE_PATH, "r") as f:
+        data = json.load(f)
+    return data.get(league_name, {})
+
+def save_scoring(league_name: str, scoring: dict):
+    if os.path.exists(STORE_PATH):
+        with open(STORE_PATH, "r") as f:
+            data = json.load(f)
+    else:
+        data = {}
+    data[league_name] = scoring
+    with open(STORE_PATH, "w") as f:
+        json.dump(data, f, indent=2)
