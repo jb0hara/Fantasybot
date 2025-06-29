@@ -1,0 +1,45 @@
+# app.py
+
+import streamlit as st
+from memory_store import get_scoring, save_scoring
+from chat_engine import handle_query
+
+st.set_page_config(page_title="Fantasy NBA Chatbot", layout="centered")
+
+st.title("🏀 Fantasy Basketball AI Chatbot")
+
+# Sidebar: Setup League Settings
+with st.sidebar:
+    st.header("🔧 League Settings")
+    league_name = st.text_input("League Name", value="default")
+    if st.button("Load League"):
+        scoring = get_scoring(league_name)
+        st.session_state["scoring"] = scoring or {}
+    if st.button("Save Settings"):
+        scoring = {
+            "pts": st.number_input("Points", value=1.0),
+            "reb": st.number_input("Rebounds", value=1.2),
+            "ast": st.number_input("Assists", value=1.5),
+            "stl": st.number_input("Steals", value=3.0),
+            "blk": st.number_input("Blocks", value=3.0),
+            "turnover": st.number_input("Turnovers", value=-1.0),
+        }
+        save_scoring(league_name, scoring)
+        st.success("Scoring saved!")
+
+# Chat Interface
+if "history" not in st.session_state:
+    st.session_state.history = []
+
+query = st.chat_input("Ask about players, pickups, comparisons...")
+
+if query:
+    scoring = st.session_state.get("scoring", {})
+    response = handle_query(query, scoring)
+    st.session_state.history.append((query, response))
+
+for user_msg, bot_msg in st.session_state.history:
+    with st.chat_message("user"):
+        st.write(user_msg)
+    with st.chat_message("assistant"):
+        st.write(bot_msg)
